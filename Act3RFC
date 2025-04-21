@@ -1,0 +1,92 @@
+/******************************************************************************
+
+       Actividad 3 Uriel Navarro Ponce 21/04/2025
+       Realizar un programa para empresa AMC donde sus empleados al ingresar
+       nombre, apellido paterno, apellido materno y fecha de nacimiento
+       genere el RFC.
+
+*******************************************************************************/
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+// Lista de palabras ofensivas prohibidas
+std::vector<std::string> palabrasProhibidas = {
+    "BUEI", "BUEY", "CACA", "CACO", "CAGA", "CAGO",
+    "CAKA", "CAKO", "COGE", "COGI", "COJA", "COJE",
+    "COJI", "COJO", "COLA", "CULO", "FETO", "GUEY",
+    "JOTO", "KACA", "KACO", "KAGA", "KAGO", "KAKA",
+    "KAKO", "MAME", "MAMO", "MEAR", "MEAS", "MEON",
+    "MIAR", "MION", "MOCO", "MULA", "PEDA", "PEDO",
+    "PENE", "PUTA", "PUTO", "QULO", "RATA", "RUIN"
+};
+
+// Función para verificar y corregir palabras ofensivas en el RFC
+std::string limpiarRFC(const std::string& rfc) {
+    std::string inicio = rfc.substr(0, 4);
+    std::transform(inicio.begin(), inicio.end(), inicio.begin(), ::toupper); // Mayúsculas
+    for (const std::string& palabra : palabrasProhibidas) {
+        if (inicio == palabra) {
+            std::string rfcLimpio = rfc;
+            rfcLimpio[3] = 'X'; // Reemplaza la cuarta letra con 'X'
+            return rfcLimpio;
+        }
+    }
+    return rfc;
+}
+
+// Función para obtener la primera vocal interna de una cadena
+char obtenerPrimeraVocalInterna(const std::string& str) {
+    for (size_t i = 1; i < str.length(); ++i) {
+        char c = toupper(str[i]);
+        if (c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U')
+            return c;
+    }
+    return 'X'; // Si no se encuentra ninguna vocal interna, se usa una 'X'
+}
+
+// Función principal para calcular el RFC
+std::string calcularRFC(const std::string& nombre, const std::string& apellidoPaterno, const std::string& apellidoMaterno, const std::string& fechaNacimiento) {
+    std::string rfc;
+
+    char letraInicial = toupper(apellidoPaterno[0]);
+    char primeraVocalInterna = obtenerPrimeraVocalInterna(apellidoPaterno);
+    char inicialApellidoMaterno = (!apellidoMaterno.empty()) ? toupper(apellidoMaterno[0]) : 'X';
+    char inicialNombre = toupper(nombre[0]);
+
+    std::string anio = fechaNacimiento.substr(2, 2);
+    std::string mes = fechaNacimiento.substr(5, 2);
+    std::string dia = fechaNacimiento.substr(8, 2);
+
+    rfc += letraInicial;
+    rfc += primeraVocalInterna;
+    rfc += inicialApellidoMaterno;
+    rfc += inicialNombre;
+    rfc += anio + mes + dia;
+
+    return rfc;
+}
+
+int main() {
+    std::string nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento;
+
+    std::cout << "Ingrese el nombre: ";
+    std::getline(std::cin, nombre);
+
+    std::cout << "Ingrese el apellido paterno: ";
+    std::getline(std::cin, apellidoPaterno);
+
+    std::cout << "Ingrese el apellido materno (si no tiene, presione Enter): ";
+    std::getline(std::cin, apellidoMaterno);
+
+    std::cout << "Ingrese la fecha de nacimiento (YYYY-MM-DD): ";
+    std::getline(std::cin, fechaNacimiento);
+
+    std::string rfc = calcularRFC(nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento);
+    rfc = limpiarRFC(rfc);  // Filtra malas palabras
+
+    std::cout << "RFC generado: " << rfc << std::endl;
+
+    return 0;
+}
